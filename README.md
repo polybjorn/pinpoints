@@ -60,3 +60,7 @@ Tile providers:
 ## Place data
 
 `places.json` is excluded from this repository. To use this app, create your own `places.json` with an array of place objects (see "Adding a place" above).
+
+## See also
+
+- [GPX Trails](https://github.com/polybjorn/gpx-trails) - interactive GPX route viewer with elevation profiles and route stats

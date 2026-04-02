@@ -145,6 +145,60 @@
     }
 
     /* Index view */
+    .index-controls {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      align-items: center;
+    }
+
+    .index-controls input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .group-toggle {
+      display: flex;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .group-toggle button {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 400;
+      font-family: inherit;
+      padding: 0.45rem 0.65rem;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      letter-spacing: 0.03em;
+    }
+
+    .group-toggle button + button { border-left: 1px solid var(--border); }
+    .group-toggle button.active { background: var(--surface2); color: var(--text); }
+    .group-toggle button:hover:not(.active) { color: var(--text); }
+
+    .search-bar input {
+      width: 100%;
+      padding: 0.6rem 0.85rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.85rem;
+      font-weight: 300;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .search-bar input::placeholder { color: var(--muted); }
+    .search-bar input:focus { border-color: var(--accent); }
+
     .category-grid {
       columns: 2;
       column-gap: 1.5rem;
@@ -402,6 +456,7 @@
       hiddenCategories: new Set(),
       showVisited: true,
       showWant: true,
+      groupBy: 'category',
     };
 
     function escapeHtml(str) {
@@ -496,27 +551,63 @@
         '<div class="nav-group" style="position:absolute;left:50%;transform:translateX(-50%)">' +
         '<div class="nav-stat"><span class="value">' + visited + '/' + total + ' visited</span></div>' +
         '<div class="nav-stat"><span class="value">' + cats.length + ' categories</span></div>' +
+        '<div class="nav-stat"><span class="value">' + [...new Set(state.places.map(p => p.region).filter(Boolean))].length + ' regions</span></div>' +
         '</div>' +
         '<div class="nav-group">' +
         '<div class="nav-stat"><span class="value"><a href="#/map"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> Map</a></span></div>' +
         '</div>';
 
+      app.innerHTML =
+        '<div class="index-controls">' +
+        '<input type="text" id="search-input" class="search-bar" placeholder="Filter places...">' +
+        '<div class="group-toggle">' +
+        '<button data-group="category"' + (state.groupBy === 'category' ? ' class="active"' : '') + '>Category</button>' +
+        '<button data-group="region"' + (state.groupBy === 'region' ? ' class="active"' : '') + '>Region</button>' +
+        '</div>' +
+        '</div>' +
+        '<div class="category-grid" id="place-list"></div>';
+      renderPlaceList('');
+
+      document.getElementById('search-input').addEventListener('input', function() {
+        renderPlaceList(this.value);
+      });
+
+      document.querySelector('.group-toggle').addEventListener('click', function(e) {
+        if (!e.target.dataset.group) return;
+        state.groupBy = e.target.dataset.group;
+        this.querySelectorAll('button').forEach(function(b) { b.classList.toggle('active', b.dataset.group === state.groupBy); });
+        var input = document.getElementById('search-input');
+        renderPlaceList(input ? input.value : '');
+      });
+    }
+
+    function renderPlaceList(query) {
+      const q = query.toLowerCase().trim();
+      const groupKey = state.groupBy;
+      const byCategory = groupKey === 'category';
+
+      const filtered = q
+        ? state.places.filter(p => p.name.toLowerCase().includes(q) || (p.note && p.note.toLowerCase().includes(q)) || p.category.toLowerCase().includes(q) || (p.region && p.region.toLowerCase().includes(q)))
+        : state.places;
+
       const grouped = {};
-      for (const p of places) {
-        if (!grouped[p.category]) grouped[p.category] = [];
-        grouped[p.category].push(p);
+      for (const p of filtered) {
+        const key = byCategory ? p.category : (p.region || 'Other');
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(p);
       }
 
-      let html = '<div class="category-grid">';
-      for (const cat of cats) {
-        const items = grouped[cat] || [];
-        const catVisited = items.filter(p => p.visited).length;
-        const color = state.categoryColors[cat];
+      const keys = Object.keys(grouped).sort();
+      let html = '';
+      for (const key of keys) {
+        const items = grouped[key];
+        const keyVisited = items.filter(p => p.visited).length;
+        const color = byCategory ? state.categoryColors[key] : 'var(--muted)';
         html += '<div class="category-group fade-in">';
         html += '<div class="category-label">';
         html += '<span class="category-dot" style="background:' + color + '"></span>';
-        html += escapeHtml(cat);
-        html += '<span class="place-count">(' + catVisited + '/' + items.length + ')</span>';
+        html += escapeHtml(key);
+        html += '<span class="place-count">(' + keyVisited + '/' + items.length + ')</span>';
         html += '</div>';
         html += '<div class="place-grid">';
         for (const p of items) {
@@ -531,8 +622,9 @@
         }
         html += '</div></div>';
       }
-      html += '</div>';
-      app.innerHTML = html;
+
+      if (!html) html = '<div class="loading">No matches</div>';
+      document.getElementById('place-list').innerHTML = html;
     }
 
     // --- Map view ---
@@ -569,6 +661,11 @@
         popupHtml += '<div class="popup-category" style="color:' + color + '">' + escapeHtml(p.category) + ' &middot; ' + (p.visited ? 'Visited' : 'Want to visit') + '</div>';
         if (p.sources && p.sources.length) popupHtml += '<div class="popup-sources">' + renderSources(p.sources) + '</div>';
         marker.bindPopup(popupHtml);
+        marker.on('click', (function(name) {
+          return function() {
+            history.replaceState(null, '', '#/map?focus=' + encodeURIComponent(name));
+          };
+        })(p.name));
 
         marker._placeData = p;
         markers.push(marker);
