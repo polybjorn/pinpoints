@@ -139,7 +139,7 @@
 
     #app:has(#map) {
       overflow: hidden;
-      padding: 0.5rem 1.5rem;
+      padding: 0;
       position: relative;
       max-width: none;
     }
@@ -207,8 +207,8 @@
       break-inside: avoid;
     }
 
-    @media (max-width: 600px) {
-      .category-grid { columns: 1; }
+    .category-group:only-child {
+      column-span: all;
     }
 
     .category-label {
@@ -225,13 +225,6 @@
       gap: 0.5rem;
     }
 
-    .category-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
     .place-count {
       font-size: 0.65rem;
       color: var(--muted);
@@ -239,7 +232,7 @@
 
     .place-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 0.5rem;
     }
 
@@ -286,26 +279,20 @@
     }
 
     .status-dot.visited { background: var(--green); }
-    .status-dot.want { border: 1.5px solid var(--yellow); background: transparent; }
+    .status-dot.want { background: var(--red); }
 
     /* Map view */
     #map {
       width: 100%;
       height: 100%;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
       background: var(--surface);
       box-sizing: border-box;
     }
 
     .map-panel {
-      position: absolute;
-      bottom: 1rem;
-      left: 2rem;
       background: var(--surface);
       border-radius: var(--radius);
       border: 1px solid var(--border);
-      z-index: 1000;
       min-width: 180px;
       max-width: 240px;
     }
@@ -367,7 +354,7 @@
       flex-shrink: 0;
     }
 
-    .map-search-result .result-region {
+    .map-search-result .result-country {
       color: var(--muted);
       margin-left: auto;
       font-size: 0.6rem;
@@ -469,6 +456,9 @@
     }
 
     /* Leaflet overrides */
+    .leaflet-bar { border-radius: var(--radius) !important; }
+    .leaflet-bar a:first-child { border-radius: var(--radius) var(--radius) 0 0 !important; }
+    .leaflet-bar a:last-child { border-radius: 0 0 var(--radius) var(--radius) !important; }
     .leaflet-control-zoom a {
       background: var(--surface) !important;
       color: var(--text) !important;
@@ -479,13 +469,28 @@
       background: var(--surface2) !important;
     }
 
+    .leaflet-top .leaflet-control, .leaflet-bottom .leaflet-control { margin: 5px !important; }
     .leaflet-control-attribution {
       background: rgba(30, 34, 40, 0.85) !important;
       color: var(--muted) !important;
       font-size: 0.6rem !important;
+      border-radius: var(--radius) !important;
     }
 
     .leaflet-control-attribution a { color: var(--accent) !important; }
+
+    .leaflet-tooltip {
+      background: var(--surface) !important;
+      color: #fff !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius) !important;
+      font-size: 0.8rem;
+      font-weight: 300;
+      white-space: pre;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4) !important;
+    }
+    .leaflet-tooltip-top::before { border-top-color: var(--border) !important; }
+    .leaflet-tooltip-bottom::before { border-bottom-color: var(--border) !important; }
 
     .leaflet-popup-content-wrapper {
       background: var(--surface) !important;
@@ -496,12 +501,14 @@
     .leaflet-popup-tip { background: var(--surface) !important; }
     .leaflet-popup-content { font-size: 0.8rem; font-weight: 300; margin: 10px 14px; }
     .leaflet-popup-content .popup-name { font-weight: 400; font-size: 0.85rem; margin-bottom: 0.25rem; }
+    .leaflet-popup-content .popup-local { font-size: 0.75rem; color: var(--muted); font-weight: 300; font-style: italic; }
     .leaflet-popup-content .popup-note { color: var(--muted); font-size: 0.75rem; }
     .leaflet-popup-content .popup-category { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.35rem; }
     .leaflet-popup-content .popup-sources { font-size: 0.65rem; margin-top: 0.3rem; }
     .leaflet-popup-content .popup-sources a { color: var(--accent); }
 
-    .leaflet-control-layers { background: var(--surface) !important; border: 1px solid var(--border) !important; border-radius: var(--radius) !important; color: var(--text) !important; }
+    .leaflet-control-layers { background: var(--surface) !important; border: 1px solid var(--border) !important; border-radius: var(--radius) !important; color: var(--text) !important; padding: 0 !important; }
+    .leaflet-control-layers-toggle { width: 36px !important; height: 36px !important; padding: 6px !important; background-size: 24px 24px !important; }
     .leaflet-control-layers label { color: var(--text); }
     .leaflet-control-layers-separator { border-color: var(--border) !important; }
 
@@ -523,7 +530,7 @@
       .nav-route-info { gap: 0.4rem; }
       .nav-group { gap: 0.4rem; }
       .nav-group + .nav-group { padding-left: 0.4rem; }
-      .map-panel { bottom: 1rem; left: 1rem; max-width: calc(100% - 2rem); }
+      .map-panel { max-width: calc(100vw - 40px); }
       .legend-item { font-size: 0.65rem; }
     }
 
@@ -546,6 +553,21 @@
   <script>
     const COLORS = ['#6aaeee', '#c792ea', '#ffbd2e', '#89ddff', '#f78c6c', '#c3e88d', '#ff5370', '#82b1ff', '#f07178', '#c17e70'];
 
+    const CATEGORY_LABELS = {
+      beach: 'Beaches',
+      castle: 'Castles',
+      monument: 'Monuments',
+      museum: 'Museums',
+      nature: 'Nature',
+      religious: 'Religious Sites',
+      ruins: 'Ruins',
+      temple: 'Temples',
+    };
+
+    function displayCategory(cat) {
+      return CATEGORY_LABELS[cat] || cat.charAt(0).toUpperCase() + cat.slice(1);
+    }
+
     const state = {
       places: null,
       currentMap: null,
@@ -562,8 +584,20 @@
       return d.innerHTML;
     }
 
+    const SOURCE_LABELS = {
+      'wikipedia.org': 'Wikipedia',
+      'antalyatouristinformation.com': 'Antalya Tourist Information',
+      'dimcave.com.tr': 'Dim Cave',
+    };
+
     function domainFromUrl(url) {
-      try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; }
+      try {
+        const host = new URL(url).hostname.replace(/^www\./, '');
+        for (const [domain, label] of Object.entries(SOURCE_LABELS)) {
+          if (host.includes(domain)) return label;
+        }
+        return host;
+      } catch { return url; }
     }
 
     function renderSources(sources) {
@@ -590,7 +624,7 @@
         }),
         'Satellite': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
           maxZoom: 19,
-          attribution: 'Tiles: <a href="https://www.esri.com">Esri</a>',
+          attribution: '<a href="https://www.esri.com">Esri</a>',
         }),
         'Dark': L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
           maxZoom: 20, subdomains: 'abcd',
@@ -656,7 +690,7 @@
         '<div class="nav-group" style="position:absolute;left:50%;transform:translateX(-50%)">' +
         '<div class="nav-stat"><span class="value">' + visited + '/' + total + ' visited</span></div>' +
         '<div class="nav-stat"><span class="value">' + cats.length + ' categories</span></div>' +
-        '<div class="nav-stat"><span class="value">' + [...new Set(state.places.map(p => p.region).filter(Boolean))].length + ' regions</span></div>' +
+        '<div class="nav-stat"><span class="value">' + [...new Set(state.places.map(p => p.country).filter(Boolean))].length + ' countries</span></div>' +
         '</div>' +
         '<div class="nav-group">' +
         '<div class="nav-stat"><span class="value"><a href="#/map"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> Map</a></span></div>' +
@@ -667,7 +701,7 @@
         '<input type="text" id="search-input" class="search-input" placeholder="Filter places...">' +
         '<div class="group-toggle">' +
         '<button data-group="category"' + (state.groupBy === 'category' ? ' class="active"' : '') + '>Category</button>' +
-        '<button data-group="region"' + (state.groupBy === 'region' ? ' class="active"' : '') + '>Region</button>' +
+        '<button data-group="country"' + (state.groupBy === 'country' ? ' class="active"' : '') + '>Country</button>' +
         '</div>' +
         '</div>' +
         '<div class="category-grid" id="place-list"></div>';
@@ -692,12 +726,12 @@
       const byCategory = groupKey === 'category';
 
       const filtered = q
-        ? state.places.filter(p => p.name.toLowerCase().includes(q) || (p.note && p.note.toLowerCase().includes(q)) || p.category.toLowerCase().includes(q) || (p.region && p.region.toLowerCase().includes(q)))
+        ? state.places.filter(p => p.name.toLowerCase().includes(q) || (p.note && p.note.toLowerCase().includes(q)) || p.category.toLowerCase().includes(q) || (p.country && p.country.toLowerCase().includes(q)))
         : state.places;
 
       const grouped = {};
       for (const p of filtered) {
-        const key = byCategory ? p.category : (p.region || 'Other');
+        const key = byCategory ? p.category : (p.country || 'Other');
         if (!grouped[key]) grouped[key] = [];
         grouped[key].push(p);
       }
@@ -710,8 +744,7 @@
         const color = byCategory ? state.categoryColors[key] : 'var(--muted)';
         html += '<div class="category-group fade-in">';
         html += '<div class="category-label">';
-        html += '<span class="category-dot" style="background:' + color + '"></span>';
-        html += escapeHtml(key);
+        html += escapeHtml(byCategory ? displayCategory(key) : key);
         html += '<span class="place-count">(' + keyVisited + '/' + items.length + ')</span>';
         html += '</div>';
         html += '<div class="place-grid">';
@@ -740,16 +773,15 @@
       const app = document.getElementById('app');
       if (!state.places) { app.innerHTML = '<div class="loading">Loading places...</div>'; return; }
 
-      app.innerHTML = '<div id="map"></div>' +
-        '<div class="map-panel" id="map-panel">' +
-        '<div class="panel-search" id="map-search">' +
-        '<input type="text" id="map-search-input" placeholder="Search places...">' +
-        '<div class="map-search-results" id="map-search-results"></div>' +
-        '</div>' +
-        '<div id="legend"></div>' +
-        '</div>';
+      app.innerHTML = '<div id="map"></div>';
 
-      const map = L.map('map', { zoomControl: true }).setView([45, 10], 4);
+      const map = L.map('map', {
+        zoomControl: true,
+        attributionControl: false,
+        maxBounds: [[-90, -200], [90, 200]],
+        maxBoundsViscosity: 1.0
+      }).setView([45, 10], 4);
+      L.control.attribution({ prefix: false }).addTo(map);
       state.currentMap = map;
       addTileLayersToMap(map);
 
@@ -768,9 +800,9 @@
         const icon = createMarkerIcon(color, p.visited);
         const marker = L.marker([p.lat, p.lon], { icon: icon });
 
-        let popupHtml = '<div class="popup-name">' + escapeHtml(p.name) + '</div>';
+        let popupHtml = '<div class="popup-name">' + escapeHtml(p.name) + (p.local_name ? ' <span class="popup-local" style="color:' + color + '">&middot; ' + escapeHtml(p.local_name) + '</span>' : '') + '</div>';
         if (p.note) popupHtml += '<div class="popup-note">' + escapeHtml(p.note) + '</div>';
-        popupHtml += '<div class="popup-category" style="color:' + color + '">' + escapeHtml(p.category) + ' &middot; ' + (p.visited ? 'Visited' : 'Want to visit') + '</div>';
+        popupHtml += '<div class="popup-category"><span style="color:' + color + '">' + escapeHtml(p.category) + '</span> &middot; <span style="color:' + (p.visited ? 'var(--green)' : 'var(--red)') + '">' + (p.visited ? 'Visited' : 'Want to visit') + '</span></div>';
         if (p.sources && p.sources.length) popupHtml += '<div class="popup-sources">' + renderSources(p.sources) + '</div>';
         marker.bindPopup(popupHtml);
         marker.on('click', (function(name) {
@@ -779,12 +811,24 @@
           };
         })(p.name));
 
+        marker.bindTooltip(escapeHtml(p.name), { direction: 'top', offset: [0, -6] });
         marker._placeData = p;
         markers.push(marker);
         bounds.extend([p.lat, p.lon]);
 
         if (focusName && p.name === focusName) focusMarker = marker;
       }
+
+      clusterGroup.on('clustermouseover', function(e) {
+        const names = e.layer.getAllChildMarkers()
+          .map(m => m._placeData.name)
+          .sort()
+          .slice(0, 10);
+        const total = e.layer.getChildCount();
+        let label = names.join('\n');
+        if (total > 10) label += '\n+' + (total - 10) + ' more';
+        e.layer.bindTooltip(label, { direction: 'top', sticky: true }).openTooltip();
+      });
 
       state._markers = markers;
       state._clusterGroup = clusterGroup;
@@ -801,6 +845,24 @@
         }, 300);
       }
 
+      var PanelControl = L.Control.extend({
+        options: { position: 'bottomleft' },
+        onAdd: function() {
+          var div = L.DomUtil.create('div', 'map-panel');
+          div.id = 'map-panel';
+          div.innerHTML =
+            '<div class="panel-search" id="map-search">' +
+            '<input type="text" id="map-search-input" placeholder="Search places...">' +
+            '<div class="map-search-results" id="map-search-results"></div>' +
+            '</div>' +
+            '<div id="legend"></div>';
+          L.DomEvent.disableClickPropagation(div);
+          L.DomEvent.disableScrollPropagation(div);
+          return div;
+        }
+      });
+      map.addControl(new PanelControl());
+
       renderLegend();
       initMapSearch(map, markers);
     }
@@ -813,7 +875,7 @@
         const q = this.value.toLowerCase().trim();
         if (!q) { results.classList.remove('visible'); results.innerHTML = ''; return; }
         const matches = state.places.filter(function(p) {
-          return p.name.toLowerCase().includes(q) || (p.note && p.note.toLowerCase().includes(q)) || p.category.toLowerCase().includes(q) || (p.region && p.region.toLowerCase().includes(q));
+          return p.name.toLowerCase().includes(q) || (p.note && p.note.toLowerCase().includes(q)) || p.category.toLowerCase().includes(q) || (p.country && p.country.toLowerCase().includes(q));
         }).slice(0, 8);
         if (!matches.length) { results.classList.remove('visible'); results.innerHTML = ''; return; }
         results.innerHTML = matches.map(function(p) {
@@ -821,7 +883,7 @@
           return '<div class="map-search-result" data-name="' + escapeHtml(p.name) + '">' +
             '<span class="result-dot" style="background:' + color + '"></span>' +
             escapeHtml(p.name) +
-            '<span class="result-region">' + escapeHtml(p.region || '') + '</span></div>';
+            '<span class="result-country">' + escapeHtml(p.country || '') + '</span></div>';
         }).join('');
         results.classList.add('visible');
       });
@@ -865,8 +927,6 @@
       const cats = Object.keys(state.categoryColors).sort();
       const el = document.getElementById('legend');
 
-      function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-
       let html = '<div class="legend-header" id="legend-toggle">Filters <span style="display:flex;align-items:center;gap:0.5rem"><span class="legend-action" id="legend-toggle-all">Toggle all</span><span class="legend-arrow">&#x25BC;</span></span></div>';
       html += '<div class="legend-body">';
       html += '<div class="legend-cats">';
@@ -875,7 +935,7 @@
         const hidden = state.hiddenCategories.has(cat);
         html += '<div class="legend-item' + (hidden ? ' disabled' : '') + '" data-cat="' + escapeHtml(cat) + '">';
         html += '<span class="legend-dot" style="background:' + color + '"></span>';
-        html += escapeHtml(capitalize(cat));
+        html += escapeHtml(displayCategory(cat));
         html += '</div>';
       }
       html += '</div>';

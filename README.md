@@ -2,11 +2,11 @@
 
 Interactive map for plotting and browsing travel destinations.
 
-<p><img src="https://res.cloudinary.com/djpkffk5u/image/upload/c_scale,h_800/v1775115696/Screenshot_2026-04-02_at_10.38.31_vgdx4t.png" width="39.3%" alt="Index view"><img src="https://res.cloudinary.com/djpkffk5u/image/upload/c_scale,h_800/v1775115696/Screen_Shot_2026-04-02_at_10.39.53_vfvmag.png" width="20.04%" alt="Mobile map view"><img src="https://res.cloudinary.com/djpkffk5u/image/upload/c_scale,h_800/v1775115694/Screenshot_2026-04-02_at_10.38.49_ll5hmf.png" width="39.3%" alt="Map view"></p>
+<p><img src="https://res.cloudinary.com/djpkffk5u/image/upload/c_scale,h_800/v1775115696/Screenshot_2026-04-02_at_10.38.31_vgdx4t.png" width="39.3%" alt="Map view"><img src="https://res.cloudinary.com/djpkffk5u/image/upload/c_scale,h_800/v1775115696/Screen_Shot_2026-04-02_at_10.39.53_vfvmag.png" width="20.04%" alt="Mobile map view"><img src="https://res.cloudinary.com/djpkffk5u/image/upload/c_scale,h_800/v1775115694/Screenshot_2026-04-02_at_10.38.49_ll5hmf.png" width="39.3%" alt="Index view"></p>
 
 ## Features
 
-- Index view with places grouped by category
+- Index view with places grouped by category or country
 - Interactive map with all pins, marker clustering for dense areas
 - Category-based color coding with toggleable legend
 - Visited / want-to-visit status filtering
@@ -16,7 +16,7 @@ Interactive map for plotting and browsing travel destinations.
 ## File structure
 
 ```
-places.json         # array of places (name, lat, lon, category, visited, note)
+places.json         # array of places (name, lat, lon, category, country, visited, note)
 index.html          # the app
 favicon.svg         # map pin icon
 ```
@@ -30,14 +30,16 @@ Edit `places.json` and add an entry:
   "name": "Place Name",
   "lat": 41.89,
   "lon": 12.49,
-  "category": "landmark",
+  "category": "ruins",
+  "country": "Italy",
   "visited": false,
   "note": "Optional description",
-  "sources": ["https://example.com/place"]
+  "sources": ["https://example.com/place"],
+  "local_name": "Optional local name"
 }
 ```
 
-Categories are free-form strings. Colors are auto-assigned from a fixed palette. Sources are optional and can contain multiple URLs — shown as clickable domain names in map popups.
+Categories are free-form strings. Colors are auto-assigned from a fixed palette. Sources and local_name are optional. Sources can contain multiple URLs, shown as clickable links in map popups.
 
 ## Setup
 
