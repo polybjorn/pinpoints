@@ -152,10 +152,23 @@
       align-items: center;
     }
 
-    .index-controls input {
+    .index-controls input[type="text"] {
       flex: 1;
       min-width: 0;
+      padding: 0.6rem 0.85rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.85rem;
+      font-weight: 300;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
     }
+
+    .index-controls input[type="text"]::placeholder { color: var(--muted); }
+    .index-controls input[type="text"]:focus { border-color: var(--accent); }
 
     .group-toggle {
       display: flex;
@@ -182,22 +195,7 @@
     .group-toggle button.active { background: var(--surface2); color: var(--text); }
     .group-toggle button:hover:not(.active) { color: var(--text); }
 
-    .search-bar input {
-      width: 100%;
-      padding: 0.6rem 0.85rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--text);
-      font-size: 0.85rem;
-      font-weight: 300;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.15s;
-    }
 
-    .search-bar input::placeholder { color: var(--muted); }
-    .search-bar input:focus { border-color: var(--accent); }
 
     .category-grid {
       columns: 2;
@@ -300,67 +298,166 @@
       box-sizing: border-box;
     }
 
-    .map-legend {
+    .map-panel {
       position: absolute;
-      bottom: 1.5rem;
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: 1rem;
+      left: 2rem;
       background: var(--surface);
-      padding: 0.5rem 0.75rem;
       border-radius: var(--radius);
       border: 1px solid var(--border);
       z-index: 1000;
+      min-width: 180px;
+      max-width: 240px;
+    }
+
+    .panel-search {
+      padding: 0.45rem 0.65rem;
+      position: relative;
+    }
+
+    .panel-search input {
+      width: 100%;
+      padding: 0.4rem 0.6rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.7rem;
+      font-weight: 300;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .panel-search input::placeholder { color: var(--muted); }
+    .panel-search input:focus { border-color: var(--accent); }
+
+    .map-search-results {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      right: 0;
+      margin-bottom: 0.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .map-search-results.visible { display: block; }
+
+    .map-search-result {
+      padding: 0.45rem 0.75rem;
+      font-size: 0.7rem;
+      cursor: pointer;
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
       align-items: center;
+      gap: 0.4rem;
+      color: var(--text);
+    }
+
+    .map-search-result:hover { background: var(--surface2); }
+
+    .map-search-result .result-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .map-search-result .result-region {
+      color: var(--muted);
+      margin-left: auto;
+      font-size: 0.6rem;
+    }
+
+    .legend-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.45rem 0.65rem;
+      cursor: pointer;
+      user-select: none;
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: var(--text);
+      letter-spacing: 0.03em;
+      border-top: 1px solid var(--border);
+    }
+
+    .legend-header .legend-arrow {
+      font-size: 0.55rem;
+      color: var(--muted);
+      transition: transform 0.15s;
+    }
+
+    .map-panel.filters-collapsed .legend-header .legend-arrow { transform: rotate(-90deg); }
+
+    .legend-body {
+      border-top: 1px solid var(--border);
+      padding: 0.4rem 0.65rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .map-panel.filters-collapsed .legend-body { display: none; }
+
+    .legend-cats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.15rem 0.5rem;
     }
 
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-      font-size: 0.75rem;
+      gap: 0.35rem;
+      font-size: 0.65rem;
       color: var(--muted);
       cursor: pointer;
       user-select: none;
       transition: opacity 0.15s;
+      padding: 0.15rem 0;
     }
 
     .legend-item.disabled { opacity: 0.35; }
 
     .legend-dot {
-      width: 10px;
-      height: 10px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       flex-shrink: 0;
     }
 
-    .legend-sep {
-      width: 1px;
-      height: 16px;
-      background: var(--border);
+    .legend-status {
+      display: flex;
+      justify-content: center;
+      gap: 0.35rem;
+      margin-top: 0.25rem;
+      padding-top: 0.35rem;
+      border-top: 1px solid var(--border);
     }
 
-    .legend-toggle {
+    .status-chip {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-      font-size: 0.7rem;
+      gap: 0.3rem;
+      font-size: 0.6rem;
       color: var(--muted);
       cursor: pointer;
       user-select: none;
-      padding: 0.15rem 0.4rem;
-      border-radius: 3px;
+      padding: 0.2rem 0.45rem;
       border: 1px solid var(--border);
-      background: transparent;
-      transition: background 0.15s, color 0.15s;
+      border-radius: 3px;
+      transition: opacity 0.15s, border-color 0.15s;
     }
 
-    .legend-toggle.active {
-      background: var(--surface2);
-      color: var(--text);
-    }
+    .status-chip.active { border-color: var(--border-hover); color: var(--text); }
+    .status-chip:hover { border-color: var(--border-hover); }
+
 
     .loading {
       display: flex;
@@ -426,7 +523,7 @@
       .nav-route-info { gap: 0.4rem; }
       .nav-group { gap: 0.4rem; }
       .nav-group + .nav-group { padding-left: 0.4rem; }
-      .map-legend { bottom: 1rem; gap: 0.5rem; padding: 0.4rem 0.6rem; max-width: calc(100% - 2rem); }
+      .map-panel { bottom: 1rem; left: 1rem; max-width: calc(100% - 2rem); }
       .legend-item { font-size: 0.65rem; }
     }
 
@@ -513,12 +610,20 @@
     }
 
     function createMarkerIcon(color, visited) {
-      const size = 12;
+      const size = 18;
+      const cx = size / 2;
+      const cy = size / 2;
       let svg;
       if (visited) {
-        svg = '<svg viewBox="0 0 ' + size + ' ' + size + '" width="' + size + '" height="' + size + '"><circle cx="' + (size/2) + '" cy="' + (size/2) + '" r="' + (size/2 - 1) + '" fill="' + color + '" stroke="#fff" stroke-width="1.5"/></svg>';
+        svg = '<svg viewBox="0 0 ' + size + ' ' + size + '" width="' + size + '" height="' + size + '">' +
+          '<circle cx="' + cx + '" cy="' + cy + '" r="' + (size/2 - 1) + '" fill="' + color + '" stroke="#1a1a1a" stroke-width="2"/>' +
+          '<circle cx="' + cx + '" cy="' + cy + '" r="' + (size/2 - 1) + '" fill="none" stroke="#fff" stroke-width="1" opacity="0.6"/>' +
+          '</svg>';
       } else {
-        svg = '<svg viewBox="0 0 ' + size + ' ' + size + '" width="' + size + '" height="' + size + '"><circle cx="' + (size/2) + '" cy="' + (size/2) + '" r="' + (size/2 - 2) + '" fill="none" stroke="' + color + '" stroke-width="2"/></svg>';
+        svg = '<svg viewBox="0 0 ' + size + ' ' + size + '" width="' + size + '" height="' + size + '">' +
+          '<circle cx="' + cx + '" cy="' + cy + '" r="' + (size/2 - 2) + '" fill="' + color + '" fill-opacity="0.25" stroke="#1a1a1a" stroke-width="2.5"/>' +
+          '<circle cx="' + cx + '" cy="' + cy + '" r="' + (size/2 - 2) + '" fill="none" stroke="' + color + '" stroke-width="2"/>' +
+          '</svg>';
       }
       return L.divIcon({
         className: '',
@@ -559,7 +664,7 @@
 
       app.innerHTML =
         '<div class="index-controls">' +
-        '<input type="text" id="search-input" class="search-bar" placeholder="Filter places...">' +
+        '<input type="text" id="search-input" class="search-input" placeholder="Filter places...">' +
         '<div class="group-toggle">' +
         '<button data-group="category"' + (state.groupBy === 'category' ? ' class="active"' : '') + '>Category</button>' +
         '<button data-group="region"' + (state.groupBy === 'region' ? ' class="active"' : '') + '>Region</button>' +
@@ -635,7 +740,14 @@
       const app = document.getElementById('app');
       if (!state.places) { app.innerHTML = '<div class="loading">Loading places...</div>'; return; }
 
-      app.innerHTML = '<div id="map"></div><div class="map-legend" id="legend"></div>';
+      app.innerHTML = '<div id="map"></div>' +
+        '<div class="map-panel" id="map-panel">' +
+        '<div class="panel-search" id="map-search">' +
+        '<input type="text" id="map-search-input" placeholder="Search places...">' +
+        '<div class="map-search-results" id="map-search-results"></div>' +
+        '</div>' +
+        '<div id="legend"></div>' +
+        '</div>';
 
       const map = L.map('map', { zoomControl: true }).setView([45, 10], 4);
       state.currentMap = map;
@@ -690,6 +802,50 @@
       }
 
       renderLegend();
+      initMapSearch(map, markers);
+    }
+
+    function initMapSearch(map, markers) {
+      const input = document.getElementById('map-search-input');
+      const results = document.getElementById('map-search-results');
+
+      input.addEventListener('input', function() {
+        const q = this.value.toLowerCase().trim();
+        if (!q) { results.classList.remove('visible'); results.innerHTML = ''; return; }
+        const matches = state.places.filter(function(p) {
+          return p.name.toLowerCase().includes(q) || (p.note && p.note.toLowerCase().includes(q)) || p.category.toLowerCase().includes(q) || (p.region && p.region.toLowerCase().includes(q));
+        }).slice(0, 8);
+        if (!matches.length) { results.classList.remove('visible'); results.innerHTML = ''; return; }
+        results.innerHTML = matches.map(function(p) {
+          var color = state.categoryColors[p.category];
+          return '<div class="map-search-result" data-name="' + escapeHtml(p.name) + '">' +
+            '<span class="result-dot" style="background:' + color + '"></span>' +
+            escapeHtml(p.name) +
+            '<span class="result-region">' + escapeHtml(p.region || '') + '</span></div>';
+        }).join('');
+        results.classList.add('visible');
+      });
+
+      results.addEventListener('click', function(e) {
+        var row = e.target.closest('.map-search-result');
+        if (!row) return;
+        var name = row.dataset.name;
+        var marker = markers.find(function(m) { return m._placeData.name === name; });
+        if (marker) {
+          map.setView([marker._placeData.lat, marker._placeData.lon], 12);
+          marker.openPopup();
+          history.replaceState(null, '', '#/map?focus=' + encodeURIComponent(name));
+        }
+        input.value = '';
+        results.classList.remove('visible');
+        results.innerHTML = '';
+      });
+
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('#map-search')) {
+          results.classList.remove('visible');
+        }
+      });
     }
 
     function updateMapMarkers() {
@@ -707,25 +863,56 @@
 
     function renderLegend() {
       const cats = Object.keys(state.categoryColors).sort();
-      let html = '';
+      const el = document.getElementById('legend');
 
+      function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+      let html = '<div class="legend-header" id="legend-toggle">Filters <span style="display:flex;align-items:center;gap:0.5rem"><span class="legend-action" id="legend-toggle-all">Toggle all</span><span class="legend-arrow">&#x25BC;</span></span></div>';
+      html += '<div class="legend-body">';
+      html += '<div class="legend-cats">';
       for (const cat of cats) {
         const color = state.categoryColors[cat];
         const hidden = state.hiddenCategories.has(cat);
         html += '<div class="legend-item' + (hidden ? ' disabled' : '') + '" data-cat="' + escapeHtml(cat) + '">';
         html += '<span class="legend-dot" style="background:' + color + '"></span>';
-        html += escapeHtml(cat);
+        html += escapeHtml(capitalize(cat));
         html += '</div>';
       }
+      html += '</div>';
 
-      html += '<span class="legend-sep"></span>';
-      html += '<span class="legend-toggle' + (state.showVisited ? ' active' : '') + '" data-filter="visited">Visited</span>';
-      html += '<span class="legend-toggle' + (state.showWant ? ' active' : '') + '" data-filter="want">Want to visit</span>';
+      html += '<div class="legend-status">';
+      html += '<div class="status-chip' + (state.showVisited ? ' active' : '') + '" data-filter="visited">Visited</div>';
+      html += '<div class="status-chip' + (state.showWant ? ' active' : '') + '" data-filter="want">Want to visit</div>';
+      html += '</div>';
 
-      const el = document.getElementById('legend');
+      html += '</div>';
       el.innerHTML = html;
 
-      el.querySelectorAll('.legend-item').forEach(function(item) {
+      document.getElementById('legend-toggle').addEventListener('click', function(e) {
+        if (e.target.closest('#legend-toggle-all')) return;
+        document.getElementById('map-panel').classList.toggle('filters-collapsed');
+      });
+
+      document.getElementById('legend-toggle-all').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const allOn = state.hiddenCategories.size === 0 && state.showVisited && state.showWant;
+        if (allOn) {
+          cats.forEach(function(c) { state.hiddenCategories.add(c); });
+          state.showVisited = false;
+          state.showWant = false;
+          el.querySelectorAll('.legend-item').forEach(function(i) { i.classList.add('disabled'); });
+          el.querySelectorAll('.status-chip').forEach(function(i) { i.classList.remove('active'); });
+        } else {
+          state.hiddenCategories.clear();
+          state.showVisited = true;
+          state.showWant = true;
+          el.querySelectorAll('.legend-item').forEach(function(i) { i.classList.remove('disabled'); });
+          el.querySelectorAll('.status-chip').forEach(function(i) { i.classList.add('active'); });
+        }
+        updateMapMarkers();
+      });
+
+      el.querySelectorAll('.legend-item[data-cat]').forEach(function(item) {
         item.addEventListener('click', function() {
           const cat = this.dataset.cat;
           if (state.hiddenCategories.has(cat)) {
@@ -739,8 +926,8 @@
         });
       });
 
-      el.querySelectorAll('.legend-toggle').forEach(function(btn) {
-        btn.addEventListener('click', function() {
+      el.querySelectorAll('.status-chip[data-filter]').forEach(function(item) {
+        item.addEventListener('click', function() {
           if (this.dataset.filter === 'visited') {
             state.showVisited = !state.showVisited;
           } else {

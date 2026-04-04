@@ -2,6 +2,8 @@
 
 Interactive map for plotting and browsing travel destinations.
 
+<p><img src="https://res.cloudinary.com/djpkffk5u/image/upload/c_scale,h_800/v1775115696/Screenshot_2026-04-02_at_10.38.31_vgdx4t.png" width="39.3%" alt="Index view"><img src="https://res.cloudinary.com/djpkffk5u/image/upload/c_scale,h_800/v1775115696/Screen_Shot_2026-04-02_at_10.39.53_vfvmag.png" width="20.04%" alt="Mobile map view"><img src="https://res.cloudinary.com/djpkffk5u/image/upload/c_scale,h_800/v1775115694/Screenshot_2026-04-02_at_10.38.49_ll5hmf.png" width="39.3%" alt="Map view"></p>
+
 ## Features
 
 - Index view with places grouped by category
